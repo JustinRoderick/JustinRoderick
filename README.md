@@ -1,4 +1,8 @@
-## Hi there 👋
+# Justin Roderick 🦕
+
+<div align="center">
+Hello my name is Justin Roderick and i'm a computer science student at the University of Central Florida. I'm passionate about web/application development and machine learning.
+</div>
 
 <!--
 **JustinRoderick/JustinRoderick** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
