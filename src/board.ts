@@ -1,4 +1,15 @@
-import { colorOf, type Color, type GameState, type PromotionPiece, type Square, type Target } from "./game.ts";
+import {
+  colorOf,
+  tap,
+  type Color,
+  type GameState,
+  type Outcome,
+  type PromotionPiece,
+  type Random,
+  type Side,
+  type Square,
+  type Target,
+} from "./game.ts";
 
 export const SQUARE = 64;
 export const BOARD = SQUARE * 8;
@@ -53,3 +64,6 @@ export function hitTest(point: Point, state: GameState): Target {
   const square = squareAt(point, bottomColor(state));
   return square ? { kind: "square", square } : { kind: "outside" };
 }
+
+export const tapAt = (state: GameState, actor: Side, point: Point, random: Random): { state: GameState; outcome: Outcome } =>
+  tap(state, actor, hitTest(point, state), random);
