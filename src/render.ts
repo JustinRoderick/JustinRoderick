@@ -96,7 +96,7 @@ function squares(state: GameState, chess: Chess, bottom: Color): string {
     if (square === kingInCheck) out.push(`<rect x="${x}" y="${y}" width="${SQUARE}" height="${SQUARE}" fill="url(#check)"/>`);
   }
 
-  // Coordinates sit inside the edge squares in the opposite square colour, lichess style.
+  // Coordinates sit inside the edge squares in the opposite square color, lichess style.
   out.push(`<g font-size="11" font-weight="700">`);
   for (let i = 0; i < 8; i++) {
     const rankSquare = squareAt({ x: 0, y: i * SQUARE }, bottom)!;

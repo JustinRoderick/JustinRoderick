@@ -17,10 +17,10 @@ Hello, my name is Justin Roderick and i'm a computer science student at the Univ
 
 ### How to play
 
-- I play one colour and everyone visiting this profile plays the other.
+- I play one color and everyone visiting this profile plays the other.
 - Turns alternate: I move, then any visitor makes the next move for the visitors' side, then it's my turn again.
 - Click a piece, then click the square to move it to. Click the piece again to cancel. A pawn reaching the last rank lets you pick its promotion piece.
 - Play on a desktop browser. On a phone the board is scaled down and clicks land on the wrong squares.
-- When a game ends, click the board to start the next one. My colour is picked at random each game.
+- When a game ends, click the board to start the next one. My color is picked at random each game.
 
 <sub>Pieces: the cburnett set by Colin M.L. Burnett (GPLv2+ / CC BY-SA 3.0), via lichess. Rules: [chess.js](https://github.com/jhlywa/chess.js).</sub>
