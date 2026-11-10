@@ -33,12 +33,21 @@ export function parseTap(search: string): Point | undefined {
   return match ? { x: Number(match[1]), y: Number(match[2]) } : undefined;
 }
 
-// Only a real click on the ismap image sends all three; link previewers and crawlers that follow the
-// README link do not, so they can never move pieces.
+// Link previewers and crawlers that follow the README link send no fetch metadata, so they can never move
+// pieces. Sec-Fetch-User is not required because Safari does not send it.
 const isBrowserClick = (request: Request) =>
-  request.headers.get("sec-fetch-mode") === "navigate" &&
-  request.headers.get("sec-fetch-dest") === "document" &&
-  request.headers.get("sec-fetch-user") === "?1";
+  request.headers.get("sec-fetch-mode") === "navigate" && request.headers.get("sec-fetch-dest") === "document";
+
+// The owner cookie is SameSite=Lax, so a link on any other site would carry it too. GitHub's referrer policy
+// sends its bare origin on the click-through, which lets a link planted elsewhere count only as a visitor.
+const GITHUB_ORIGIN = "https://github.com";
+function cameFromGitHub(request: Request): boolean {
+  try {
+    return new URL(request.headers.get("referer") ?? "").origin === GITHUB_ORIGIN;
+  } catch {
+    return false;
+  }
+}
 
 function readCookie(request: Request, name: string): string | undefined {
   for (const part of (request.headers.get("cookie") ?? "").split(";")) {
@@ -79,7 +88,8 @@ export function createApp({ store, config, fetch: fetchImpl = fetch, now = Date.
 
   async function actorOf(request: Request): Promise<Side> {
     const value = readCookie(request, SESSION_COOKIE);
-    return value && (await verifySession(config.sessionSecret, value, now())) ? "owner" : "visitors";
+    if (!value || !cameFromGitHub(request)) return "visitors";
+    return (await verifySession(config.sessionSecret, value, now())) ? "owner" : "visitors";
   }
 
   async function board(url: URL): Promise<Response> {

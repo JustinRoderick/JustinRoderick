@@ -4,9 +4,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 BASE=${1:-http://localhost:1337}
-CLICK=(-H 'sec-fetch-mode: navigate' -H 'sec-fetch-dest: document' -H 'sec-fetch-user: ?1')
-OWNER="session=$(bun -e '
-  const state = JSON.parse(await Bun.file(".alchemy/state/profile-chess/dev_justin/SessionSecret.json").text());
+CLICK=(-H 'sec-fetch-mode: navigate' -H 'sec-fetch-dest: document' -H 'referer: https://github.com/')
+STAGE=${ALCHEMY_STAGE:-dev_$USER}
+OWNER="session=$(STAGE=$STAGE bun -e '
+  const state = JSON.parse(await Bun.file(`.alchemy/state/profile-chess/${process.env.STAGE}/SessionSecret.json`).text());
   const { signSession } = await import("./src/session.ts");
   console.log(await signSession(state.attr.text.__redacted__, Date.now() + 3_600_000));
 ')"

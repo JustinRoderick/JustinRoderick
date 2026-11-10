@@ -14,7 +14,12 @@ const CONFIG: AppConfig = {
   githubClientSecret: "client-secret",
   sessionSecret: "session-secret",
 };
-const CLICK = { "sec-fetch-mode": "navigate", "sec-fetch-dest": "document", "sec-fetch-user": "?1" };
+const CLICK = {
+  "sec-fetch-mode": "navigate",
+  "sec-fetch-dest": "document",
+  "sec-fetch-user": "?1",
+  referer: "https://github.com/",
+};
 
 // Visitors hold the bottom colour: with the owner on black, e2 is (288, 416); with the owner on white, e2 is (224, 96).
 const OWNER_BLACK = { ...newGame(undefined, () => 0), ownerColor: "b" } satisfies GameState;
@@ -138,7 +143,6 @@ describe("GET /tap", () => {
 
   it.each<[string, Record<string, string>]>([
     ["no fetch metadata", {}],
-    ["a non-user-initiated navigation", { "sec-fetch-mode": "navigate", "sec-fetch-dest": "document" }],
     ["an image fetch", { "sec-fetch-mode": "no-cors", "sec-fetch-dest": "image", "sec-fetch-user": "?1" }],
   ])("redirects without moving for a request with %s", async (_, headers) => {
     const { store, get } = setup(OWNER_BLACK);
@@ -146,6 +150,25 @@ describe("GET /tap", () => {
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe(PROFILE);
     expect(store.current).toEqual(OWNER_BLACK);
+  });
+
+  it("accepts a Safari click, which has no sec-fetch-user", async () => {
+    const { store, get } = setup(OWNER_BLACK);
+    const { "sec-fetch-user": _, ...safari } = CLICK;
+    expect((await get("/tap?288,416", safari)).status).toBe(303);
+    expect(store.current.pending).toEqual({ kind: "selected", from: "e2" });
+  });
+
+  const { referer: _, ...noReferer } = CLICK;
+  it.each<[string, Record<string, string>]>([
+    ["from another site", { ...CLICK, referer: "https://attacker.example/" }],
+    ["from a lookalike host", { ...CLICK, referer: "https://github.com.attacker.example/" }],
+    ["with no referer", noReferer],
+  ])("treats an owner cookie on a link %s as a visitor", async (_, headers) => {
+    const { store, get } = setup(OWNER_WHITE);
+    const html = await (await get("/tap?224,96", { ...headers, cookie: await ownerCookie() })).text();
+    expect(html).toContain("It's Justin's move.");
+    expect(store.current).toEqual(OWNER_WHITE);
   });
 
   it.each(["/tap", "/tap?abc", "/tap?1,2,3"])("redirects without moving for %s", async (path) => {
