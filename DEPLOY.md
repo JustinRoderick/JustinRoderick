@@ -6,6 +6,8 @@ The board is a Cloudflare Worker (`profile-chess`) with one Durable Object holdi
 
 The Worker is served at `https://profile-chess.<your-subdomain>.workers.dev`. Your subdomain is shown in the Cloudflare dashboard under **Workers & Pages → Overview** (right-hand column). If you have never connected Cloudflare to Alchemy on this machine, run `bunx alchemy profile edit` first.
 
+You know this URL before the first deploy. The Worker name is fixed in `alchemy.run.ts` and the subdomain belongs to your account. If the dashboard asks you to choose a subdomain, choose one there first. The deploy in step 4 needs the OAuth credentials, so create the OAuth App first.
+
 Below, `<worker>` means that full URL with no trailing slash.
 
 ## 2. Create a GitHub OAuth App
