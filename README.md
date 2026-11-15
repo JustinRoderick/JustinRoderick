@@ -7,11 +7,10 @@ Hello, my name is Justin Roderick and i'm a computer science student at the Univ
 
 ## Play chess with me
 
-<!-- Worker host: https://profile-chess.YOUR-SUBDOMAIN.workers.dev (DEPLOY.md step 4 replaces every occurrence) -->
-<a href="https://profile-chess.YOUR-SUBDOMAIN.workers.dev/tap">
+<a href="https://profile-chess.justinroderick258.workers.dev/tap">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://profile-chess.YOUR-SUBDOMAIN.workers.dev/board.svg?theme=dark">
-    <img ismap src="https://profile-chess.YOUR-SUBDOMAIN.workers.dev/board.svg?theme=light" width="512" alt="Chess board for a game between Justin and visitors to this profile">
+    <source media="(prefers-color-scheme: dark)" srcset="https://profile-chess.justinroderick258.workers.dev/board.svg?theme=dark">
+    <img ismap src="https://profile-chess.justinroderick258.workers.dev/board.svg?theme=light" width="512" alt="Chess board for a game between Justin and visitors to this profile">
   </picture>
 </a>
 
