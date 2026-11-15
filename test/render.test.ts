@@ -27,6 +27,16 @@ describe("renderBoard", () => {
     expect(svg.match(/<circle [^>]*rgba\(20,85,30,0.5\)/g)).toHaveLength(2);
   });
 
+  it("rings an en passant destination as a capture", () => {
+    const svg = render({
+      ...base,
+      ownerColor: "b",
+      moves: ["e2e4", "a7a6", "e4e5", "d7d5"],
+      pending: { kind: "selected", from: "e5" },
+    });
+    expect(svg.match(/<circle [^>]*fill="none" stroke="rgba\(20,85,30,0.5\)"/g)).toHaveLength(1);
+  });
+
   it("announces the result and the next game number after checkmate", () => {
     const svg = render({
       ...base,

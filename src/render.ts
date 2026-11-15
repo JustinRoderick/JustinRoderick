@@ -121,7 +121,7 @@ function squares(state: GameState, chess: Chess, bottom: Color): string {
       const cx = x + SQUARE / 2;
       const cy = y + SQUARE / 2;
       out.push(
-        move.isCapture()
+        move.isCapture() || move.isEnPassant()
           ? `<circle cx="${cx}" cy="${cy}" r="${SQUARE / 2 - 3}" fill="none" stroke="${MARK}" stroke-width="5"/>`
           : `<circle cx="${cx}" cy="${cy}" r="${SQUARE / 6}" fill="${MARK}"/>`,
       );
