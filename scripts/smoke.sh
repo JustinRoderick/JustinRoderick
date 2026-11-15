@@ -13,36 +13,52 @@ OWNER="session=$(STAGE=$STAGE bun -e '
 ')"
 
 headline() { curl -sS "$BASE/board.svg" | grep -o 'font-weight="600"[^>]*>[^<]*' | sed 's/.*>//'; }
+last_move() { curl -sS "$BASE/board.svg" | grep -o 'Last move: [^<]*' || true; }
+fail() { echo "FAIL: $*" >&2; exit 1; }
 
+# tap <label> <x,y> <expected "303" or "200:<h1 text>"> [curl args...]
 tap() {
-  local who=$1 point=$2 body
-  shift 2
+  local who=$1 point=$2 expected=$3 body got
+  shift 3
   body=$(mktemp)
-  printf '%-9s tap %-8s -> ' "$who" "$point"
-  curl -sS -o "$body" -w '%{http_code} %{redirect_url}' "$@" "$BASE/tap?$point"
-  printf '  %s\n' "$(grep -o '<h1>[^<]*' "$body" | sed 's/<h1>//')"
+  got=$(curl -sS -o "$body" -w '%{http_code}' "$@" "$BASE/tap?$point")
+  [ "$got" = 200 ] && got="200:$(grep -o '<h1>[^<]*' "$body" | sed 's/<h1>//')"
   rm -f "$body"
+  printf '%-9s tap %-8s -> %s\n' "$who" "$point" "$got"
+  [ "$got" = "$expected" ] || fail "$who tap $point expected '$expected', got '$got'"
 }
 
+# Asserts that a rejected tap leaves the board exactly as it was.
+rejected() {
+  local before
+  before=$(curl -sS "$BASE/board.svg")
+  tap "$@"
+  [ "$(curl -sS "$BASE/board.svg")" = "$before" ] || fail "rejected tap $2 changed the board"
+}
+
+[ -z "$(last_move)" ] || fail "needs a fresh game; stop dev and delete .alchemy/local/profile-chess-Game"
 echo "board: $(headline)"
-tap crawler 288,416
-echo "board: $(headline)"
+rejected crawler 288,416 303
 
 if headline | grep -q "You play White"; then
-  first=(visitors "${CLICK[@]}") second=(owner "${CLICK[@]}" -H "cookie: $OWNER")
+  visitors=(visitors "${CLICK[@]}") owner=(owner "${CLICK[@]}" -H "cookie: $OWNER")
+  first=("${visitors[@]}") second=("${owner[@]}")
   from1=288,416 to1=288,288 from2=288,96 to2=288,224
+  first_wait="200:It's the visitors' move." second_wait="200:It's Justin's move."
 else
-  first=(owner "${CLICK[@]}" -H "cookie: $OWNER") second=(visitors "${CLICK[@]}")
+  owner=(owner "${CLICK[@]}" -H "cookie: $OWNER") visitors=(visitors "${CLICK[@]}")
+  first=("${owner[@]}") second=("${visitors[@]}")
   from1=224,96 to1=224,224 from2=224,416 to2=224,288
+  first_wait="200:It's Justin's move." second_wait="200:It's the visitors' move."
 fi
 
-tap "${second[0]}" "$from2" "${second[@]:1}"
-tap "${first[0]}" "$from1" "${first[@]:1}"
+rejected "${second[0]}" "$from2" "$first_wait" "${second[@]:1}"
+tap "${first[0]}" "$from1" 303 "${first[@]:1}"
+tap "${first[0]}" "$to1" 303 "${first[@]:1}"
 echo "board: $(headline)"
-tap "${first[0]}" "$to1" "${first[@]:1}"
+rejected "${first[0]}" "$from2" "$second_wait" "${first[@]:1}"
+tap "${second[0]}" "$from2" 303 "${second[@]:1}"
+tap "${second[0]}" "$to2" 303 "${second[@]:1}"
 echo "board: $(headline)"
-tap "${first[0]}" "$from2" "${first[@]:1}"
-tap "${second[0]}" "$from2" "${second[@]:1}"
-tap "${second[0]}" "$to2" "${second[@]:1}"
-echo "board: $(headline)"
-curl -sS "$BASE/board.svg" | grep -o 'Last move: [^<]*'
+[ "$(last_move)" = "Last move: 1... e5" ] || fail "expected 1. e4 e5, board shows '$(last_move)'"
+echo "PASS: 1. e4 e5"
