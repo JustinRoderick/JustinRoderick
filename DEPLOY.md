@@ -61,3 +61,7 @@ bun run shots shots                                          # rasterizes fixtur
 ```
 
 Sign-in does not work locally with dummy credentials. `scripts/smoke.sh` mints an owner cookie from the local dev secret instead.
+
+## If the owner cookie leaks
+
+`/logout` only clears the cookie in that browser. To cancel every owner session, give the session secret a new id in `alchemy.run.ts` (for example `Alchemy.makeRandom("SessionSecret2")`) and run `bun run deploy`. Alchemy creates a new secret, every existing cookie stops working, and you sign in again at `<worker>/login`.
