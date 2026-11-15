@@ -1,0 +1,27 @@
+{
+  "name": "profile-chess",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "alchemy dev",
+    "deploy": "alchemy deploy",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "pieces": "bun scripts/vendor-pieces.ts",
+    "shots": "bun scripts/shots.ts"
+  },
+  "dependencies": {
+    "chess.js": "1.4.0"
+  },
+  "devDependencies": {
+    "@alchemy.run/cloudflare": "2.0.0-beta.85",
+    "@cloudflare/workers-types": "5.20261110.1",
+    "@effect/platform-bun": "4.1.3",
+    "@effect/platform-node": "4.1.3",
+    "@types/node": "26.6.6",
+    "alchemy": "2.0.0-beta.85",
+    "effect": "4.1.3",
+    "typescript": "7.0.2",
+    "vitest": "5.1.0"
+  }
+}
